@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ТРЕНАЖЁР СЛЕПОЙ ПЕЧАТИ</title>
+  <title>Тренажёр слепой печати</title>
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -93,21 +93,11 @@
       max-width: 860px;
       padding: 1.2rem 1.5rem 0;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-end;
       align-items: center;
       flex-wrap: wrap;
       gap: 0.5rem;
     }
-
-    .source-info {
-      font-size: 0.8rem;
-      color: #888;
-    }
-    .source-info a {
-      color: #aaa;
-      text-decoration: none;
-    }
-    .source-info a:hover { text-decoration: underline; }
 
     .stats-bar {
       display: flex;
@@ -138,18 +128,30 @@
       font-family: 'Courier New', monospace;
       font-size: 1rem;
       min-height: 180px;
+      overflow: hidden;
+    }
+
+    /* Invisible spacer so arena grows with the text */
+    #text-sizer {
+      visibility: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      line-height: 1.9;
     }
 
     /* Ghost text */
     #ghost-text {
       position: absolute;
-      top: 1.5rem; left: 1.5rem; right: 1.5rem;
+      top: 1.5rem; left: 1.5rem; right: 1.5rem; bottom: 1.5rem;
       line-height: 1.9;
       font-family: 'Courier New', monospace;
       font-size: 1rem;
       color: #555;
       white-space: pre-wrap;
       word-break: break-word;
+      overflow: hidden;
       pointer-events: none;
       user-select: none;
       z-index: 1;
@@ -189,12 +191,13 @@
     /* Typed overlay */
     #typed-overlay {
       position: absolute;
-      top: 1.5rem; left: 1.5rem; right: 1.5rem;
+      top: 1.5rem; left: 1.5rem; right: 1.5rem; bottom: 1.5rem;
       line-height: 1.9;
       font-family: 'Courier New', monospace;
       font-size: 1rem;
       white-space: pre-wrap;
       word-break: break-word;
+      overflow: hidden;
       pointer-events: none;
       user-select: none;
       z-index: 3;
@@ -336,9 +339,6 @@
   <div id="page-typing" class="page">
 
     <div class="typing-header">
-      <div class="source-info">
-        Источник: <a id="article-link" href="#" target="_blank">—</a> · Wikipedia
-      </div>
       <div class="stats-bar">
         <div class="stat">
           <span class="stat-label">Набрано символов</span>
@@ -361,6 +361,7 @@
           <div class="spinner"></div>
           <div class="loading-text">Загрузка текста...</div>
         </div>
+        <div id="text-sizer"></div>
         <div id="ghost-text"></div>
         <div id="typed-overlay"></div>
         <textarea id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
@@ -379,7 +380,7 @@
   </div>
 
   <div id="completion-banner">
-    <div class="banner-title">Завершено!</div>
+    <div class="banner-title">Вы справились!</div>
     <div class="banner-stats">
       <div class="banner-stat">
         <span class="val" id="final-chars">0</span>
@@ -460,7 +461,11 @@
 
     function buildGhostText() {
       const ghost = document.getElementById('ghost-text');
+      const sizer = document.getElementById('text-sizer');
       ghost.innerHTML = '';
+      // Fill sizer with plain text so arena grows to correct height
+      sizer.textContent = targetText;
+
       for (let i = 0; i < targetText.length; i++) {
         const span = document.createElement('span');
         span.classList.add('gc');
@@ -474,6 +479,15 @@
         ghost.appendChild(span);
       }
       if (ghost.children[0]) ghost.children[0].classList.add('cursor-pos');
+
+      // Make ghost, overlay and textarea span the full arena height
+      const arena = document.getElementById('typing-arena');
+      const h = arena.scrollHeight;
+      ghost.style.bottom = 'auto';
+      ghost.style.height = (h - 48) + 'px'; // 48 = 2 * 1.5rem padding
+      document.getElementById('typed-overlay').style.height = (h - 48) + 'px';
+      document.getElementById('typing-input').style.height = h + 'px';
+
       updateProgress();
     }
 

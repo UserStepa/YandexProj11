@@ -1,0 +1,65 @@
+{
+  "articles": [
+    {
+      "title": "Python (язык программирования)",
+      "url": "https://ru.wikipedia.org/wiki/Python",
+      "lang": "ru",
+      "category": "programming"
+    },
+    {
+      "title": "Компьютерная безопасность",
+      "url": "https://ru.wikipedia.org/wiki/Компьютерная_безопасность",
+      "lang": "ru",
+      "category": "cybersecurity"
+    },
+    {
+      "title": "Шифрование",
+      "url": "https://ru.wikipedia.org/wiki/Шифрование",
+      "lang": "ru",
+      "category": "cybersecurity"
+    },
+    {
+      "title": "Алгоритм",
+      "url": "https://ru.wikipedia.org/wiki/Алгоритм",
+      "lang": "ru",
+      "category": "programming"
+    },
+    {
+      "title": "Межсетевой экран",
+      "url": "https://ru.wikipedia.org/wiki/Межсетевой_экран",
+      "lang": "ru",
+      "category": "cybersecurity"
+    },
+    {
+      "title": "JavaScript",
+      "url": "https://ru.wikipedia.org/wiki/JavaScript",
+      "lang": "ru",
+      "category": "programming"
+    },
+    {
+      "title": "Вредоносная программа",
+      "url": "https://ru.wikipedia.org/wiki/Вредоносная_программа",
+      "lang": "ru",
+      "category": "cybersecurity"
+    },
+    {
+      "title": "Linux",
+      "url": "https://ru.wikipedia.org/wiki/Linux",
+      "lang": "ru",
+      "category": "programming"
+    },
+    {
+      "title": "SQL",
+      "url": "https://ru.wikipedia.org/wiki/SQL",
+      "lang": "ru",
+      "category": "programming"
+    },
+    {
+      "title": "Фишинг",
+      "url": "https://ru.wikipedia.org/wiki/Фишинг",
+      "lang": "ru",
+      "category": "cybersecurity"
+    }
+  ]
+}
+
