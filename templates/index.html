@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ТРЕНАЖЁР СЛЕПОЙ ПЕЧАТИ</title>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { width: 100%; height: 100%; }
+
+    body {
+      background: #1a1a1a;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    #site-header {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 50px;
+      background: #111111;
+      border-bottom: 1px solid #333;
+      display: flex;
+      align-items: center;
+      padding: 0 1.5rem;
+    }
+
+    #site-logo {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #ffffff;
+      cursor: pointer;
+      user-select: none;
+    }
+    #site-logo:hover { color: #cccccc; }
+
+    /* PAGES */
+    .page { display: none; min-height: 100vh; }
+    .page.active { display: flex; }
+
+    /* MAIN MENU */
+    #page-menu {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-top: 50px;
+    }
+
+    .menu-title {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 2rem;
+      color: #ffffff;
+    }
+
+    .menu-buttons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-menu {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #ffffff;
+      background: #2d2d2d;
+      border: 1px solid #555;
+      padding: 0.9rem 2.5rem;
+      cursor: pointer;
+      width: 280px;
+      text-align: center;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .btn-menu:hover { background: #3a3a3a; }
+    .btn-menu:active { background: #222; }
+    .btn-menu.muted { color: #888; border-color: #444; }
+    .btn-menu.muted:hover { background: #3a3a3a; color: #aaa; }
+
+    /* TYPING PAGE */
+    #page-typing {
+      flex-direction: column;
+      padding-top: 50px;
+      align-items: center;
+    }
+
+    .typing-header {
+      width: 100%;
+      max-width: 860px;
+      padding: 1.2rem 1.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .source-info {
+      font-size: 0.8rem;
+      color: #888;
+    }
+    .source-info a {
+      color: #aaa;
+      text-decoration: none;
+    }
+    .source-info a:hover { text-decoration: underline; }
+
+    .stats-bar {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+
+    .stat { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
+    .stat-label { font-size: 0.72rem; color: #666; }
+    .stat-value { color: #ffffff; font-size: 1rem; font-weight: bold; }
+
+    /* TYPING AREA */
+    .typing-main {
+      width: 100%;
+      max-width: 860px;
+      padding: 1.5rem;
+      flex: 1;
+    }
+
+    .typing-arena {
+      position: relative;
+      background: #111111;
+      border: 1px solid #333;
+      border-radius: 4px;
+      padding: 1.5rem;
+      line-height: 1.9;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      min-height: 180px;
+    }
+
+    /* Ghost text */
+    #ghost-text {
+      position: absolute;
+      top: 1.5rem; left: 1.5rem; right: 1.5rem;
+      line-height: 1.9;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      color: #555;
+      white-space: pre-wrap;
+      word-break: break-word;
+      pointer-events: none;
+      user-select: none;
+      z-index: 1;
+    }
+
+    #ghost-text .gc { color: #555; }
+    #ghost-text .gc.typed { color: transparent; }
+    #ghost-text .gc.error { color: #cc3333; }
+    #ghost-text .gc.cursor-pos {
+      border-left: 2px solid #ffffff;
+      animation: cur-blink 0.9s step-end infinite;
+    }
+    @keyframes cur-blink { 0%,100%{border-color:#ffffff} 50%{border-color:transparent} }
+
+    /* Invisible textarea */
+    #typing-input {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      width: 100%; height: 100%;
+      resize: none;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: transparent;
+      caret-color: transparent;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      line-height: 1.9;
+      padding: 1.5rem;
+      z-index: 2;
+      overflow: hidden;
+      white-space: pre-wrap;
+      word-break: break-word;
+      cursor: text;
+    }
+
+    /* Typed overlay */
+    #typed-overlay {
+      position: absolute;
+      top: 1.5rem; left: 1.5rem; right: 1.5rem;
+      line-height: 1.9;
+      font-family: 'Courier New', monospace;
+      font-size: 1rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+      pointer-events: none;
+      user-select: none;
+      z-index: 3;
+      color: #ffffff;
+    }
+
+    /* Progress bar */
+    .progress-bar-wrap {
+      height: 3px;
+      background: #333;
+      border-radius: 2px;
+      margin-top: 0.75rem;
+      overflow: hidden;
+    }
+    #progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #666;
+      transition: width 0.15s;
+    }
+
+    /* Controls */
+    .typing-controls {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-ctrl {
+      font-size: 0.85rem;
+      color: #ccc;
+      background: #2d2d2d;
+      border: 1px solid #444;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .btn-ctrl:hover { background: #3a3a3a; color: #fff; }
+
+    .btn-back {
+      font-size: 0.85rem;
+      color: #888;
+      background: transparent;
+      border: 1px solid #333;
+      padding: 0.5rem 1.2rem;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background 0.15s;
+    }
+    .btn-back:hover { background: #2d2d2d; color: #ccc; }
+
+    /* Loading */
+    #loading-overlay {
+      display: none;
+      position: absolute; inset: 0;
+      background: #111;
+      z-index: 10;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 0.75rem;
+      border-radius: 4px;
+    }
+    #loading-overlay.active { display: flex; }
+
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid #333;
+      border-top-color: #888;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text { font-size: 0.8rem; color: #666; }
+
+    /* Completion banner */
+    #completion-banner {
+      display: none;
+      position: fixed; inset: 0; z-index: 200;
+      background: rgba(17,17,17,0.93);
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    #completion-banner.active { display: flex; }
+
+    .banner-title {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+
+    .banner-stats {
+      display: flex;
+      gap: 3rem;
+      font-size: 0.85rem;
+      color: #aaa;
+    }
+    .banner-stat { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .banner-stat .val { font-size: 1.8rem; font-weight: bold; color: #fff; }
+
+    /* WIP overlay */
+    #wip-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 300;
+      background: rgba(17,17,17,0.92);
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    #wip-overlay.active { display: flex; }
+
+    .wip-box { text-align: center; pointer-events: none; }
+    .wip-title { font-size: 2rem; font-weight: bold; color: #ffffff; }
+    .wip-sub { margin-top: 0.6rem; font-size: 0.8rem; color: #666; }
+
+    /* Error flash */
+    .arena-error-flash { outline: 2px solid #cc3333; }
+  </style>
+</head>
+<body>
+
+  <header id="site-header">
+    <div id="site-logo" onclick="showPage('menu')">ТРЕНАЖЁР СЛЕПОЙ ПЕЧАТИ</div>
+  </header>
+
+  <div id="page-menu" class="page active">
+    <div class="menu-title">Тренажёр слепой печати</div>
+    <div class="menu-buttons">
+      <button class="btn-menu" onclick="startNormalMode()">ОБЫЧНЫЙ РЕЖИМ</button>
+      <button class="btn-menu muted" onclick="showWip()">СКОРОСТНОЙ РЕЖИМ</button>
+    </div>
+  </div>
+
+  <div id="page-typing" class="page">
+
+    <div class="typing-header">
+      <div class="source-info">
+        Источник: <a id="article-link" href="#" target="_blank">—</a> · Wikipedia
+      </div>
+      <div class="stats-bar">
+        <div class="stat">
+          <span class="stat-label">Набрано символов</span>
+          <span class="stat-value" id="stat-chars">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Ошибок</span>
+          <span class="stat-value" id="stat-errors">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Точность</span>
+          <span class="stat-value" id="stat-acc">100%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="typing-main">
+      <div class="typing-arena" id="typing-arena">
+        <div id="loading-overlay" class="active">
+          <div class="spinner"></div>
+          <div class="loading-text">Загрузка текста...</div>
+        </div>
+        <div id="ghost-text"></div>
+        <div id="typed-overlay"></div>
+        <textarea id="typing-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+      </div>
+
+      <div class="progress-bar-wrap">
+        <div id="progress-bar"></div>
+      </div>
+
+      <div class="typing-controls">
+        <button class="btn-ctrl" onclick="loadNewText()">Новый текст</button>
+        <button class="btn-ctrl" onclick="resetTyping()">Начать заново</button>
+        <button class="btn-back" onclick="showPage('menu')">← Меню</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="completion-banner">
+    <div class="banner-title">Завершено!</div>
+    <div class="banner-stats">
+      <div class="banner-stat">
+        <span class="val" id="final-chars">0</span>
+        <span>символов</span>
+      </div>
+      <div class="banner-stat">
+        <span class="val" id="final-errors">0</span>
+        <span>ошибок</span>
+      </div>
+      <div class="banner-stat">
+        <span class="val" id="final-acc">100%</span>
+        <span>точность</span>
+      </div>
+    </div>
+    <button class="btn-ctrl" onclick="closeBanner()">Новый текст</button>
+  </div>
+
+  <div id="wip-overlay" onclick="closeWip()">
+    <div class="wip-box">
+      <div class="wip-title">НАХОДИТСЯ В РАЗРАБОТКЕ</div>
+      <div class="wip-sub">Нажмите в любом месте, чтобы закрыть</div>
+    </div>
+  </div>
+
+  <script>
+    let targetText    = '';
+    let typedText     = '';
+    let errorCount    = 0;
+    let startTime     = null;
+    let timerInterval = null;
+    let completed     = false;
+
+    function showPage(id) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById('page-' + id).classList.add('active');
+    }
+
+    function startNormalMode() {
+      showPage('typing');
+      loadNewText();
+    }
+
+    function showWip() {
+      document.getElementById('wip-overlay').classList.add('active');
+    }
+
+    function closeWip() {
+      document.getElementById('wip-overlay').classList.remove('active');
+    }
+
+    async function loadNewText() {
+      resetState();
+      showLoading(true);
+      try {
+        const res  = await fetch('/api/text');
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        targetText = data.text.replace(/\r/g, '');
+
+        const link = document.getElementById('article-link');
+        link.textContent = data.source || 'Wikipedia';
+        link.href = data.url || '#';
+
+        buildGhostText();
+        showLoading(false);
+        focusInput();
+      } catch (e) {
+        console.error(e);
+        document.querySelector('.loading-text').textContent = 'Ошибка загрузки. Попробуйте снова.';
+      }
+    }
+
+    function showLoading(visible) {
+      document.getElementById('loading-overlay').classList.toggle('active', visible);
+      document.getElementById('typing-input').disabled = visible;
+    }
+
+    function buildGhostText() {
+      const ghost = document.getElementById('ghost-text');
+      ghost.innerHTML = '';
+      for (let i = 0; i < targetText.length; i++) {
+        const span = document.createElement('span');
+        span.classList.add('gc');
+        if (targetText[i] === ' ') {
+          span.innerHTML = '&nbsp;';
+        } else if (targetText[i] === '\n') {
+          span.appendChild(document.createTextNode('\n'));
+        } else {
+          span.textContent = targetText[i];
+        }
+        ghost.appendChild(span);
+      }
+      if (ghost.children[0]) ghost.children[0].classList.add('cursor-pos');
+      updateProgress();
+    }
+
+    function resetState() {
+      typedText  = '';
+      errorCount = 0;
+      startTime  = null;
+      completed  = false;
+      clearInterval(timerInterval);
+      timerInterval = null;
+      updateStats();
+      document.getElementById('typed-overlay').textContent = '';
+      document.getElementById('progress-bar').style.width = '0%';
+      document.getElementById('completion-banner').classList.remove('active');
+    }
+
+    function resetTyping() {
+      resetState();
+      buildGhostText();
+      focusInput();
+    }
+
+    function focusInput() {
+      const input = document.getElementById('typing-input');
+      input.value = '';
+      input.focus();
+    }
+
+    document.getElementById('typing-input').addEventListener('keydown', handleKey);
+
+    function handleKey(e) {
+      if (completed || !targetText) return;
+      if (e.key === 'Tab' || e.key === 'Backspace') { e.preventDefault(); return; }
+      if (e.key.length > 1 && e.key !== 'Enter') return;
+
+      e.preventDefault();
+      if (!startTime) startTimer();
+
+      const pos      = typedText.length;
+      const expected = targetText[pos];
+      const typed    = e.key === 'Enter' ? '\n' : e.key;
+
+      if (typed === expected) {
+        typedText += typed;
+        markCorrect(pos);
+        updateStats();
+        updateProgress();
+        updateOverlay();
+        advanceCursor();
+        if (typedText.length === targetText.length) finishSession();
+      } else {
+        errorCount++;
+        markError(pos);
+        flashArena();
+        updateStats();
+      }
+    }
+
+    function markCorrect(pos) {
+      const span = document.getElementById('ghost-text').children[pos];
+      if (!span) return;
+      span.classList.remove('error', 'cursor-pos');
+      span.classList.add('typed');
+    }
+
+    function markError(pos) {
+      const span = document.getElementById('ghost-text').children[pos];
+      if (!span) return;
+      span.classList.add('error');
+      setTimeout(() => span.classList.remove('error'), 300);
+    }
+
+    function advanceCursor() {
+      const pos   = typedText.length;
+      const ghost = document.getElementById('ghost-text');
+      ghost.querySelectorAll('.cursor-pos').forEach(s => s.classList.remove('cursor-pos'));
+      if (pos < ghost.children.length) ghost.children[pos].classList.add('cursor-pos');
+    }
+
+    function flashArena() {
+      const arena = document.getElementById('typing-arena');
+      arena.classList.remove('arena-error-flash');
+      void arena.offsetWidth;
+      arena.classList.add('arena-error-flash');
+      setTimeout(() => arena.classList.remove('arena-error-flash'), 150);
+    }
+
+    function updateOverlay() {
+      document.getElementById('typed-overlay').textContent = typedText;
+    }
+
+    function updateProgress() {
+      if (!targetText.length) return;
+      document.getElementById('progress-bar').style.width =
+        (typedText.length / targetText.length * 100) + '%';
+    }
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(updateStats, 500);
+    }
+
+    function updateStats() {
+      const chars = typedText.length;
+      const total = chars + errorCount;
+      const acc   = total > 0 ? Math.round(chars / total * 100) : 100;
+      document.getElementById('stat-chars').textContent  = chars;
+      document.getElementById('stat-errors').textContent = errorCount;
+      document.getElementById('stat-acc').textContent    = acc + '%';
+    }
+
+    function finishSession() {
+      completed = true;
+      clearInterval(timerInterval);
+      updateStats();
+
+      const chars = typedText.length;
+      const total = chars + errorCount;
+      const acc   = total > 0 ? Math.round(chars / total * 100) : 100;
+
+      document.getElementById('final-chars').textContent  = chars;
+      document.getElementById('final-errors').textContent = errorCount;
+      document.getElementById('final-acc').textContent    = acc + '%';
+
+      setTimeout(() => document.getElementById('completion-banner').classList.add('active'), 200);
+    }
+
+    function closeBanner() {
+      document.getElementById('completion-banner').classList.remove('active');
+      loadNewText();
+    }
+
+    document.getElementById('page-typing').addEventListener('click', function() {
+      if (!completed) focusInput();
+    });
+  </script>
+</body>
+</html>
