@@ -1,65 +1,64 @@
 {
   "articles": [
     {
-      "title": "Python (язык программирования)",
-      "url": "https://ru.wikipedia.org/wiki/Python",
-      "lang": "ru",
+      "title": "Python (programming language)",
+      "url": "https://en.wikipedia.org/wiki/Python_(programming_language)",
+      "lang": "en",
       "category": "programming"
     },
     {
-      "title": "Компьютерная безопасность",
-      "url": "https://ru.wikipedia.org/wiki/Компьютерная_безопасность",
-      "lang": "ru",
+      "title": "Cybersecurity",
+      "url": "https://en.wikipedia.org/wiki/Computer_security",
+      "lang": "en",
       "category": "cybersecurity"
     },
     {
-      "title": "Шифрование",
-      "url": "https://ru.wikipedia.org/wiki/Шифрование",
-      "lang": "ru",
+      "title": "Encryption",
+      "url": "https://en.wikipedia.org/wiki/Encryption",
+      "lang": "en",
       "category": "cybersecurity"
     },
     {
-      "title": "Алгоритм",
-      "url": "https://ru.wikipedia.org/wiki/Алгоритм",
-      "lang": "ru",
+      "title": "Algorithm",
+      "url": "https://en.wikipedia.org/wiki/Algorithm",
+      "lang": "en",
       "category": "programming"
     },
     {
-      "title": "Межсетевой экран",
-      "url": "https://ru.wikipedia.org/wiki/Межсетевой_экран",
-      "lang": "ru",
+      "title": "Firewall (computing)",
+      "url": "https://en.wikipedia.org/wiki/Firewall_(computing)",
+      "lang": "en",
       "category": "cybersecurity"
     },
     {
       "title": "JavaScript",
-      "url": "https://ru.wikipedia.org/wiki/JavaScript",
-      "lang": "ru",
+      "url": "https://en.wikipedia.org/wiki/JavaScript",
+      "lang": "en",
       "category": "programming"
     },
     {
-      "title": "Вредоносная программа",
-      "url": "https://ru.wikipedia.org/wiki/Вредоносная_программа",
-      "lang": "ru",
+      "title": "Malware",
+      "url": "https://en.wikipedia.org/wiki/Malware",
+      "lang": "en",
       "category": "cybersecurity"
     },
     {
       "title": "Linux",
-      "url": "https://ru.wikipedia.org/wiki/Linux",
-      "lang": "ru",
+      "url": "https://en.wikipedia.org/wiki/Linux",
+      "lang": "en",
       "category": "programming"
     },
     {
       "title": "SQL",
-      "url": "https://ru.wikipedia.org/wiki/SQL",
-      "lang": "ru",
+      "url": "https://en.wikipedia.org/wiki/SQL",
+      "lang": "en",
       "category": "programming"
     },
     {
-      "title": "Фишинг",
-      "url": "https://ru.wikipedia.org/wiki/Фишинг",
-      "lang": "ru",
+      "title": "Phishing",
+      "url": "https://en.wikipedia.org/wiki/Phishing",
+      "lang": "en",
       "category": "cybersecurity"
     }
   ]
 }
-

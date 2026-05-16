@@ -16,7 +16,6 @@ def load_articles():
 
 
 def get_wikipedia_text(title: str, lang: str = 'en') -> str:
-    """Fetch plain text from Wikipedia API and extract 4-5 paragraphs."""
     api_url = f"https://{lang}.wikipedia.org/w/api.php"
     params = {
         'action': 'query',
@@ -34,7 +33,7 @@ def get_wikipedia_text(title: str, lang: str = 'en') -> str:
 
         print(f"Wikipedia API Response Status Code for '{title}': {resp.status_code}")
         if resp.status_code != 200:
-            print(f"Wikipedia API Response Text for '{title}': {resp.text[:500]}...")
+            print(f"Wikipedia API Response Text for '{title}': {resp.text[:120]}...")
             return ''
 
         data = resp.json()
@@ -44,7 +43,7 @@ def get_wikipedia_text(title: str, lang: str = 'en') -> str:
             if extract:
                 return extract
     except requests.exceptions.JSONDecodeError as e:
-        print(f"JSON Decode Error for '{title}': {e}. Response text was: {resp.text[:500]}...")
+        print(f"JSON Decode Error for '{title}': {e}. Response text was: {resp.text[:120]}...")
     except Exception as e:
         print(f"Error fetching Wikipedia article '{title}': {e}")
     return ''
@@ -55,7 +54,7 @@ def extract_paragraphs(text: str, count: int = 4) -> str:
     paras = []
     for p in raw_paras:
         p = p.strip()
-        if len(p) < 80:
+        if len(p) < 20:
             continue
         if '\n' not in p and len(p) < 120 and '.' not in p:
             continue
@@ -64,7 +63,7 @@ def extract_paragraphs(text: str, count: int = 4) -> str:
             break
 
     if not paras:
-        return text[:2000]
+        return text[:120]
 
     return '\n\n'.join(paras)
 
@@ -79,7 +78,7 @@ def get_text():
     db = load_articles()
     articles = db.get('articles', [])
     if not articles:
-        return jsonify({'error': 'No articles in database'}), 500
+        return jsonify({'error': 'No articles in database'}), 200
 
     article = random.choice(articles)
     raw_text = get_wikipedia_text(article['title'], article.get('lang', 'en'))
@@ -87,7 +86,7 @@ def get_text():
     if not raw_text:
         return jsonify({'error': 'Could not fetch article'}), 503
 
-    paragraphs = extract_paragraphs(raw_text, count=random.randint(4, 5))
+    paragraphs = extract_paragraphs(raw_text, count=random.randint(1, 2))
 
     return jsonify({
         'text': paragraphs,
