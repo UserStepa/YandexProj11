@@ -17,6 +17,11 @@ def load_articles():
 
 def get_wikipedia_text(title: str, lang: str = 'en') -> str:
     api_url = f"https://{lang}.wikipedia.org/w/api.php"
+
+    headers = {
+        'User-Agent': 'MyWikiProject/1.0 (contact: your-email@example.com)'
+    }
+
     params = {
         'action': 'query',
         'titles': title,
@@ -24,31 +29,41 @@ def get_wikipedia_text(title: str, lang: str = 'en') -> str:
         'explaintext': True,
         'exsectionformat': 'plain',
         'format': 'json',
+        'redirects': 1,
     }
+
     try:
-        resp = requests.get(api_url, params=params, timeout=10)
+        resp = requests.get(api_url, params=params, headers=headers, timeout=10)
+
+        resp.raise_for_status()
+
         data = resp.json()
         pages = data.get('query', {}).get('pages', {})
-        for page in pages.values():
+
+        for page_id, page in pages.items():
+            if page_id == "-1":
+                print(f"Article '{title}' not found.")
+                return ''
+
             extract = page.get('extract', '')
             if extract:
                 return extract
+
+    except requests.exceptions.HTTPError as e:
+        print(f"HTTP Error: {e}")
     except Exception as e:
         print(f"Error fetching Wikipedia article '{title}': {e}")
+
     return ''
 
 
 def extract_paragraphs(text: str, count: int = 4) -> str:
-    """Extract 4-5 meaningful paragraphs from article text."""
-    # Split on double newlines, filter empty and section headers
     raw_paras = re.split(r'\n{2,}', text)
     paras = []
     for p in raw_paras:
         p = p.strip()
-        # Skip section headers (short lines, no spaces typically) and very short paragraphs
         if len(p) < 80:
             continue
-        # Skip lines that look like headers (no periods, short)
         if '\n' not in p and len(p) < 120 and '.' not in p:
             continue
         paras.append(p)
@@ -56,7 +71,7 @@ def extract_paragraphs(text: str, count: int = 4) -> str:
             break
 
     if not paras:
-        return text[:2000]  # fallback
+        return text[:2000]
 
     return '\n\n'.join(paras)
 
