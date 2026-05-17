@@ -33,7 +33,7 @@ def get_wikipedia_text(title: str, lang: str = 'en') -> str:
 
         print(f"Wikipedia API Response Status Code for '{title}': {resp.status_code}")
         if resp.status_code != 200:
-            print(f"Wikipedia API Response Text for '{title}': {resp.text[:120]}...")
+            print(f" Код ответа API Википедии для '{title}': {resp.text[:120]}...")
             return ''
 
         data = resp.json()
@@ -42,10 +42,8 @@ def get_wikipedia_text(title: str, lang: str = 'en') -> str:
             extract = page.get('extract', '')
             if extract:
                 return extract
-    except requests.exceptions.JSONDecodeError as e:
-        print(f"JSON Decode Error for '{title}': {e}. Response text was: {resp.text[:120]}...")
     except Exception as e:
-        print(f"Error fetching Wikipedia article '{title}': {e}")
+        print(f"Ошибка при загрузке статьи '{title}': {e}")
     return ''
 
 
@@ -78,13 +76,13 @@ def get_text():
     db = load_articles()
     articles = db.get('articles', [])
     if not articles:
-        return jsonify({'error': 'No articles in database'}), 200
+        return jsonify({'error': 'В базе данных отсутствуют статьи'}), 200
 
     article = random.choice(articles)
     raw_text = get_wikipedia_text(article['title'], article.get('lang', 'en'))
 
     if not raw_text:
-        return jsonify({'error': 'Could not fetch article'}), 503
+        return jsonify({'error': 'Статья не найдена'}), 503
 
     paragraphs = extract_paragraphs(raw_text, count=random.randint(1, 2))
 
